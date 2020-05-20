@@ -1,0 +1,19 @@
+<li>
+  <span class="content">
+	  <%= link_to band.bn_head, 'http://www.reuters.com' + band.bn_url %>   
+    <%= band.novelty %>
+  </span>
+  <span class="timestamp">
+    <%= band.bn_date %> / 
+    <%#= time_ago_in_words(band.bn_date) %> ago;
+	  <%#= link_to "Удалить", band_path(band), method: :delete,
+                          data: {confirm: 'Вы уверены?'} %>
+	  <%#= link_to "Прочитать", band_path(band) %>
+	  <%#= link_to "Save-file-txt", savefile_band_path(band) %>
+	  <%#= link_to "Обработать", edit_band_path(band) %>
+	  <%#= link_to "Корр.время", corect_band_path(band) %>
+	  <%#= link_to "Корр.время", corect_band_path(band), method: :edit,
+                          data: {confirm: 'Вы уверены?'} %>
+	  <%#= link_to "**Обработать", china_band_path(band) %>
+  </span>
+</li>

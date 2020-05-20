@@ -38,6 +38,7 @@ gem 'turbolinks', '5.2.1'
 
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 gem 'jbuilder', '2.10.0'
+# gem 'jbuilder', github: 'rails/jbuilder', branch: 'master'
 gem 'sprockets-rails', '3.2.1'
 
 # Use Redis adapter to run Action Cable in production
@@ -50,6 +51,10 @@ gem 'sprockets-rails', '3.2.1'
 
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '1.4.6', require: false
+
+gem 'mechanize', '2.7.6'
+
+gem 'nokogiri', '1.10.9'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

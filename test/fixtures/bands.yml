@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  bn_date: 2020-05-19 21:35:46
+  bn_head: MyString
+  novelty: MyString
+  bn_url: MyString
+  bn_action: 1
+
+two:
+  bn_date: 2020-05-19 21:35:46
+  bn_head: MyString
+  novelty: MyString
+  bn_url: MyString
+  bn_action: 1
