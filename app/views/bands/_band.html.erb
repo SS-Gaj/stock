@@ -5,12 +5,23 @@
   </span>
   <span class="timestamp">
     <%= band.bn_date %> / 
-    <%#= time_ago_in_words(band.bn_date) %> ago;
-	  <%#= link_to "Удалить", band_path(band), method: :delete,
-                          data: {confirm: 'Вы уверены?'} %>
-	  <%#= link_to "Прочитать", band_path(band) %>
+    <%= time_ago_in_words(band.bn_date) %> ago </span>
+  <span class="content">
+    <%= band.bn_action %>
+                          
+	  <% if band.bn_action == 0 %>
+  	  <%= link_to "Прочитать", band_path(band), class:  "badge badge-light" %>
+  	  <%= link_to "Save-file-txt", "#", class:  "badge badge-light" %>
+  	<% elsif band.bn_action == 1 %>
+    	<%= link_to "Прочитать", band_path(band), class:  "badge badge-primary" %>
+  	  <%= link_to "Save-file-txt", "#", class:  "badge badge-light" %>
+  	<% else %>
+  	<% end %>
 	  <%#= link_to "Save-file-txt", savefile_band_path(band) %>
 	  <%#= link_to "Обработать", edit_band_path(band) %>
+
+	  <%#= link_to "Удалить", band_path(band), method: :delete,
+                          data: {confirm: 'Вы уверены?'} %>
 	  <%#= link_to "Корр.время", corect_band_path(band) %>
 	  <%#= link_to "Корр.время", corect_band_path(band), method: :edit,
                           data: {confirm: 'Вы уверены?'} %>
