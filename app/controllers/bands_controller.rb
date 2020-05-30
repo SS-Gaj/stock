@@ -42,6 +42,20 @@ class BandsController < ApplicationController
     redirect_to bands_path	#bands#index
   end # def new
 
+  def edit	#"Обработать"
+	  @band = Band.find(params[:id])
+    Obrab.new(editor(@band.bn_url))
+#byebug
+    if @band.bn_action == 0
+     @band.bn_action == 4
+    elsif @band.bn_action == 1
+      @band.bn_action == 14
+    end
+ 	  @band.save
+    redirect_to new_overlook_path	#overlooks#new
+  end	#def edit	#"Обработать"
+
+
   def show	#"Просмотреть"
 	  @band = Band.find(params[:id])
 	  @mas_p = reader(@band.bn_url)

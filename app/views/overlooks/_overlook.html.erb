@@ -1,0 +1,21 @@
+<li>
+  <div class="row">
+  	<div class="span1">
+      <%= overlook.lk_date %>
+    </div>
+    <div class="span6">
+      <% unless overlook.lk_file == nil %>
+        <%= link_to "Биржевые индексы ", overlook_path(overlook) %>
+  	  <% end %>
+      <% unless overlook.lk_file_g == nil %>
+        <%= link_to " GLOBAL ", globalshow_overlook_path(overlook) %>
+  	  <% end %>
+      <% unless overlook.lk_file_o == nil %>
+        <%= link_to " Нефть ", oilshow_overlook_path(overlook) %>
+  	  <% end %>
+   	  <% unless overlook.lk_btcfile == nil %>
+    	  <%= link_to "Криптовалюты", btcshow_overlook_path(overlook) %>
+  	  <% end %>
+    </div>
+  </div>
+</li>

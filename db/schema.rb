@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_05_20_182912) do
+ActiveRecord::Schema.define(version: 2020_05_29_183933) do
 
   create_table "bands", force: :cascade do |t|
     t.datetime "bn_date"
@@ -21,6 +21,13 @@ ActiveRecord::Schema.define(version: 2020_05_20_182912) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["bn_date"], name: "index_bands_on_bn_date"
+  end
+
+  create_table "overlooks", force: :cascade do |t|
+    t.date "lk_date"
+    t.string "lk_file"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
   end
 
 end

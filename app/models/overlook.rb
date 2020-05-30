@@ -1,0 +1,2 @@
+class Overlook < ApplicationRecord
+end

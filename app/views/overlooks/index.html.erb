@@ -1,0 +1,11 @@
+<% provide(:title, 'Обзор за...') %>
+  <h1>Обзор за...</h1>
+<div class="row">
+	<div class="span8">
+		<%= will_paginate %>
+			<ol class="microposts">
+      	<%= render @overlooks %>
+			</ol>
+		<%= will_paginate %>
+	</div>
+</div>

@@ -1,0 +1,15 @@
+<% @newsday_mas.each do |nsd| %>
+    <p><%= nsd.text %></p>
+<% end %>
+
+<% @article_mas.each do |article| %>
+  <% ahead = article.css "ahead" %>
+  <% atime = article.css "atime" %>
+  <% abz = article.css "p" %>
+  <h3><%= ahead.text %></h3>
+  <h4><%= atime.text %></h4>
+    <% abz.each do |p| %>
+    <p><%= p.text %></p>
+  <% end %>
+
+<% end %>
