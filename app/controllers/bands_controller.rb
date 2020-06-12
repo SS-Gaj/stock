@@ -53,7 +53,6 @@ class BandsController < ApplicationController
 
   def edit	#"Обработать"
 	  @band = Band.find(params[:id])
-    Obrab.new(editor(@band.bn_url))
 #byebug
     if @band.bn_action == 0
      @band.bn_action = 4
@@ -61,8 +60,9 @@ class BandsController < ApplicationController
       @band.bn_action = 14
     end
  	  @band.save
-    #redirect_to new_overlook_path	#overlooks#new
-    #redirect_to newlook_new_band	#bands#newlook
+ 	  @mas_p = reader(@band.bn_url)  
+    @var_html = toobrab(@band.bn_url, @mas_p)
+    @var_html_class = Obrab.new(@var_html)
     newlook #Это бывший (в /pisma) #overlooks#new
   	render "newlook"
   end	#def edit	#"Обработать"
@@ -70,7 +70,7 @@ class BandsController < ApplicationController
 def newlook #Это бывший (в /pisma) #overlooks#new
 # создание нового файла "Обзор за ..." или вход в созданный ранее
 # + записывание заголовка "Обрабатываемой" статьи и времени публикации
-    texttocopy  #/app/controllers/application_controller.rb
+#    texttocopy  #/app/controllers/application_controller.rb
   #формирование имени файла "Обзор за ..."
   @preflk = '/lk-'
   target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
@@ -153,9 +153,9 @@ def newlook #Это бывший (в /pisma) #overlooks#new
 end #def new #переход из ленты новостей после нажатия "Обработать"
 
 def editlook	# при нажатии "Copy" во вьюэре
-# "Обработываемый" файл открываеся по-новой и считывается в Nokogiri
-#номер нужного абзаца выбирается как :id из полученного запроса	
-  texttocopy  #  /app/helpers/overlooks_helper.rb
+  texttocopy  #Здесь восстанавливается .html-переменная "Обрабатываемого" файла из class Obrab;
+#... и там же номер нужного абзаца выбирается как :id из полученного запроса	
+#byebug
   add_p('/lk-')
 	render "newlook"
   #redirect_to :back
@@ -171,6 +171,7 @@ end #edit
     div_all_page = doc.css("div[class=StandardArticle_inner-container]")
     @div_article_header = div_all_page.css("div[class=ArticleHeader_content-container] h1").text
     @div_date = div_all_page.css("div[class=ArticleHeader_content-container]").css("div[class=ArticleHeader_date]").text
+    @div_isxurl = url_article
     unless url_article =~ /live-markets/
       article = div_all_page.css("div[class=StandardArticleBody_body] p")
     #byebug
@@ -232,27 +233,22 @@ end #edit
     return mas_glob 
   end #def reader(url_article) #для "Прочитать"
 
-  def editor(url_article) #"Обработать"
-    article = reader(url_article)  
-    name_file = toobrab(url_article, 'obrab', article)
-    return name_file
-  end #editor #"Обработать"
-
-  def toobrab(url_article, sfera, article)
-      target_date = DateTime.parse('2017-09-23T04:05:06+03:00')   #просто init
-    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
-    name_file = dir_save_file(target_date)
-    Dir.mkdir(sfera) unless File.directory?(sfera)
-	  Dir.chdir(sfera)
-    name_file = name_file + '/' + sfera + '/' + name_need_file(url_article)
-    if id_name = url_article =~ /id[A-Z\d]+\Z/ #/id/
-      name_file = name_file + url_article[id_name, url_article.length-id_name]
-    else
-      name_file = name_file + 'id_no'    
-    end 
-    name_file = name_file + '.html'
+  def toobrab(url_article, article)
+#      target_date = DateTime.parse('2017-09-23T04:05:06+03:00')   #просто init
+#    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
+#    name_file = dir_save_file(target_date)
+#    Dir.mkdir(sfera) unless File.directory?(sfera)
+#	  Dir.chdir(sfera)
+#    name_file = name_file + '/' + sfera + '/' + name_need_file(url_article)
+#    if id_name = url_article =~ /id[A-Z\d]+\Z/ #/id/
+#      name_file = name_file + url_article[id_name, url_article.length-id_name]
+#    else
+#      name_file = name_file + 'id_no'    
+#    end 
+#    name_file = name_file + '.html'
   #unless File.exist?(name_file)
-  	f = File.new(name_file, 'w') 
+#  	f = File.new(name_file, 'w') 
+    f = String.new
     f << "<!DOCTYPE html>"
     f << "<html>"
     f << "<head>"
@@ -275,25 +271,24 @@ end #edit
     f << "</body>"
     f << "</html>"
 	  # start save file
-		f.close
-    return name_file
+#		f.close
+#    return name_file
+    return f
   end #def toobrab (url_article, sfera, article)
 
   def texttocopy()
-  # "Обработываемый" файл открываеся по-новой и считывается в Nokogiri
+  # "Обработываемый" файл был сохранен как .html-переменная в class Obrab и здесь восстанавливается по-новой
+  #... и считывается в Nokogiri
   #byebug
-    @file_obrab = Obrab.file_obrab  # Obrab получил на хранение "имя файла" в bands_controller.rb
-    doc_obrab = File.open(@file_obrab) { |f| Nokogiri::XML(f) }
+    doc_obrab = Nokogiri::HTML(Obrab.file_obrab)
     div_all_page = doc_obrab.css("html")
     article = div_all_page.css("h3")
     @div_article_header = article.first.text
     @div_date = article.last.text
     @div_isxurl = div_all_page.css("h4").text
-#    @div_first = div_all_page.css("h5").text
     div_h5 = div_all_page.css("h5")
     @div_first = div_h5.first.text
     @div_percent = div_h5.last.text
-    #@div_first = " "    #это временная мера, см.п.18.1 hm-news_day-180331(console-21)
     article = div_all_page.css("p")
     @mas_p = []
     article.each do |elem|
@@ -301,7 +296,7 @@ end #edit
     end
   end # def texttocopy()
 
-      def name_need_file (url) # used hier
+  def name_need_file (url) # used hier
       if url =~ /bitcoin/
         name_file = 'bitcoin-'
       elsif url =~ /usa-stocks/
@@ -330,7 +325,7 @@ end #edit
       else
       end
       return name_file
-    end	#name_need_file
+  end	#name_need_file
 
   def dir_save_file (date_prezent)  # used in overlooks_controller.rb
   # puts "REUTERS_DIR = #{REUTERS_DIR}"
@@ -421,6 +416,7 @@ end #time_view == nil
     
   def add_p(dir_lk) #добавить вбзац
   #номер нужного абзаца выбирается как :id из полученного запроса	
+#byebug
     target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
     name_lk = dir_save_file(target_date) + name_save_file(target_date, dir_lk, '.xml')  #def dir_save_file и def name_save_file locate in 
 	  if File.exist?(name_lk)
