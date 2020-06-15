@@ -67,16 +67,15 @@ class BandsController < ApplicationController
   	render "newlook"
   end	#def edit	#"Обработать"
 
-def newlook #Это бывший (в /pisma) #overlooks#new
+
+def newlook #С 12чер20 здесь .html вместо .xml
 # создание нового файла "Обзор за ..." или вход в созданный ранее
 # + записывание заголовка "Обрабатываемой" статьи и времени публикации
 #    texttocopy  #/app/controllers/application_controller.rb
   #формирование имени файла "Обзор за ..."
   @preflk = '/lk-'
   target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
-#  name_lk = dir_save_file(target_date) + name_save_file(target_date, '/lk-', '.xml')  #def dir_save_file и def name_save_file locate in 
-        #
-  name_lk = dir_save_file(target_date) + name_save_file(target_date, @preflk, '.xml')  #def dir_save_file и def name_save_file locate in 
+  name_lk = dir_save_file(target_date) + name_save_file(target_date, @preflk, '.html')  #def dir_save_file и def name_save_file locate in 
 
 #byebug
 	unless File.exist?(name_lk)
@@ -88,69 +87,30 @@ def newlook #Это бывший (в /pisma) #overlooks#new
     end #unless Overlook.exists?(lk_date: target_date)
     overlook.save
 		f = File.new(name_lk, 'w')
+#    @doc_f = Nokogiri::HTML::DocumentFragment.parse <<-EOHTML 
     @doc_f = Nokogiri::HTML::Document.parse <<-EOHTML
-      <root>
-        <day>Обзор за </day>
-        <newsday>
-        </newsday>
-        <fullcontent>
-        </fullcontent>
-      </root>
+    <!DOCTYPE html>
+      <html>
+        <head>
+          <title>Reuters|Обзор</title>
+        </head>
+          <body>
+          <h1>Обзор за </h1>
+          <div class="article">
+          <p></p>
+          </div>
+          </body>
+      </html>
     EOHTML
-    day = @doc_f.at_css "day"
+    #day = @doc_f.at_css "day"
+    day = @doc_f.at_css "h1"
     day.content = "Обзор за " + target_date.strftime("%Y-%m-%d")
-    content = @doc_f.at_css "fullcontent"
-    content.content = " "
-    news = @doc_f.at_css "newsday"
-    news.content = " "
+    @doc_f.to_html
     f << @doc_f
     f.close
 	end # unless File.exist?(name_lk)
-
-   @doc_f = File.open(name_lk) { |f| Nokogiri::XML(f) }
-   f = File.new(name_lk, 'w')
-# вставляю @div_first в "newsday"
-   newsday = @doc_f.at_css "newsday"
-   nodes = @doc_f.css "fullcontent"       # нахожу блок 'fullcontent', поскольку он идет сразу за 'newsday'   
-   p = Nokogiri::XML::Node.new "p", @doc_f
-   p.content = @div_first
-#byebug   
-   nodes.first.add_previous_sibling(p)
-   p.parent = newsday
-
-# вставляю @div_percent в "newsday"
-   newsday = @doc_f.at_css "newsday"
-   nodes = @doc_f.css "fullcontent"       # нахожу блок 'fullcontent', поскольку он идет сразу за 'newsday'   
-   p = Nokogiri::XML::Node.new "p", @doc_f
-   p.content = @div_percent
-#byebug   
-   nodes.first.add_previous_sibling(p)
-   p.parent = newsday
-  
-    nodes = @doc_f.css "fullcontent"       # а теперь нахожу блок 'fullcontent', чтобы вставить в него Заголовок и дату
-# вставляю в "fullcontent" "рамки" для статьи:
-    article = Nokogiri::XML::Node.new "article", @doc_f
-    article.content = " "
 #byebug
-    nodes.last.add_next_sibling(article)  
-    article.parent = nodes.last
-
-    nodes = @doc_f.css "article"       # нахожу все "article"
-    ahead = Nokogiri::XML::Node.new "ahead", @doc_f #создаю узел для заголовка
-    ahead.content = @div_article_header
-    nodes.last.add_next_sibling(ahead)
-    ahead.parent = nodes.last #article
-
-    nodes = @doc_f.css "article"       # ЯтД, что узел поменялся, поэтому создаю его заново
-    atime = Nokogiri::XML::Node.new "atime", @doc_f
-    atime.content = @div_date
-    nodes.last.add_next_sibling(atime)
-    atime.parent = nodes.last #article
-
-    f << @doc_f
-		f.close
-#byebug
-end #def new #переход из ленты новостей после нажатия "Обработать"
+end #def newlook #С 12чер20 здесь .html вместо .xml
 
 def editlook	# при нажатии "Copy" во вьюэре
   texttocopy  #Здесь восстанавливается .html-переменная "Обрабатываемого" файла из class Obrab;
@@ -160,7 +120,6 @@ def editlook	# при нажатии "Copy" во вьюэре
 	render "newlook"
   #redirect_to :back
 end #edit
-
 
   private
   
@@ -234,20 +193,6 @@ end #edit
   end #def reader(url_article) #для "Прочитать"
 
   def toobrab(url_article, article)
-#      target_date = DateTime.parse('2017-09-23T04:05:06+03:00')   #просто init
-#    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
-#    name_file = dir_save_file(target_date)
-#    Dir.mkdir(sfera) unless File.directory?(sfera)
-#	  Dir.chdir(sfera)
-#    name_file = name_file + '/' + sfera + '/' + name_need_file(url_article)
-#    if id_name = url_article =~ /id[A-Z\d]+\Z/ #/id/
-#      name_file = name_file + url_article[id_name, url_article.length-id_name]
-#    else
-#      name_file = name_file + 'id_no'    
-#    end 
-#    name_file = name_file + '.html'
-  #unless File.exist?(name_file)
-#  	f = File.new(name_file, 'w') 
     f = String.new
     f << "<!DOCTYPE html>"
     f << "<html>"
@@ -270,9 +215,6 @@ end #edit
     end # article.each do |elem|
     f << "</body>"
     f << "</html>"
-	  # start save file
-#		f.close
-#    return name_file
     return f
   end #def toobrab (url_article, sfera, article)
 
@@ -418,14 +360,16 @@ end #time_view == nil
   #номер нужного абзаца выбирается как :id из полученного запроса	
 #byebug
     target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
-    name_lk = dir_save_file(target_date) + name_save_file(target_date, dir_lk, '.xml')  #def dir_save_file и def name_save_file locate in 
+    name_lk = dir_save_file(target_date) + name_save_file(target_date, dir_lk, '.html')  #def dir_save_file и def name_save_file locate in 
 	  if File.exist?(name_lk)
      @doc_f = File.open(name_lk) { |f| Nokogiri::XML(f) }
-     nodes = @doc_f.css "ahead, atime, p"
+     div = @doc_f.css "div[class=article], p"
      f = File.new(name_lk, 'w')
-      p = Nokogiri::XML::Node.new "p", @doc_f
-      p.content = @mas_p[params[:id].to_i]
-      nodes.last.add_next_sibling(p)
+      new_p = Nokogiri::XML::Node.new "p", @doc_f
+      new_p.content = @mas_p[params[:id].to_i]
+#      byebug
+      div.last.add_next_sibling(new_p)
+      @doc_f.to_html
       f << @doc_f   
 		  f.close
 	  end # if File.exist?(name_lk)
