@@ -61,12 +61,22 @@ class BandsController < ApplicationController
     end
  	  @band.save
  	  @mas_p = reader(@band.bn_url)  
+#здесь @mas_p не МАССИВ ПАРАГРАФОВ <p>...</p>, а ВСЯ html-переменная "Обрабатываемого" файла!!!!  
     @var_html = toobrab(@band.bn_url, @mas_p)
     @var_html_class = Obrab.new(@var_html)
+    @teg_to_copy = 'global'
+    @var_teg = Tegiobrab.new(@teg_to_copy)
     newlook #Это бывший (в /pisma) #overlooks#new
   	render "newlook"
   end	#def edit	#"Обработать"
 
+  def radiomenu #Выбот тега для "Copy" в заданный раздел
+    @teg_to_copy = params[:inlineRadioOptions]
+    +@var_teg = Tegiobrab.new(@teg_to_copy)
+#byebug
+#  render inline: "<p>ВЫБРАНО</p>"
+  
+  end
 
 def newlook #С 12чер20 здесь .html вместо .xml
 # создание нового файла "Обзор за ..." или вход в созданный ранее
@@ -95,10 +105,41 @@ def newlook #С 12чер20 здесь .html вместо .xml
           <title>Reuters|Обзор</title>
         </head>
           <body>
-          <h1>Обзор за </h1>
-          <div class="article">
-          <p></p>
-          </div>
+            <h1>Обзор за </h1>
+            <div class="article">
+              <div class="global">
+                <h3>Глобал</h3>
+                <p></p>
+              </div>
+              <div class="index">
+                <h3>Индексы</h3>
+                <p></p>
+              </div>
+              <div class="asia">
+                <h3>Азия</h3>
+                <p></p>
+              </div>
+              <div class="euro">
+                <h3>Европа</h3>
+                <p></p>
+              </div>
+              <div class="usa">
+                <h3>США</h3>
+                <p></p>
+              </div>
+              <div class="forex">
+                <h3>Forex</h3>
+                <p></p>
+              </div>
+              <div class="company">
+                <h3>Корпоративные новости</h3>
+                <p></p>
+              </div>
+              <div class="oil">
+                <h3>Нефть</h3>
+                <p></p>
+              </div>
+            </div>
           </body>
       </html>
     EOHTML
@@ -121,7 +162,60 @@ def editlook	# при нажатии "Copy" во вьюэре
   #redirect_to :back
 end #edit
 
+  def corect #"Корр.время" 
+  	  @band = Band.find(params[:id])
+   	  @band.bn_date = @band.bn_date - 86400
+  	  @band.save
+  	  redirect_to bands_path	#bands#index
+  end # def destroy
+
+  def savefile	#“Save-file-txt”
+ 	  @band = Band.find(params[:id])
+    wrieter(@band.bn_url)      
+    redirect_to bands_path	#bands#index
+  end	#def savefile	#“Save-file-txt”
+
+
   private
+    def rtdatefile(url_date)
+      return DateTime.parse(url_date).strftime("%y%m%d") + '-' + DateTime.parse(url_date).strftime("%H%M") + '.txt'           
+    end
+
+  def wrieter(url_article)  #“Save-file-txt”
+    target_date = DateTime.parse('2017-09-23T04:05:06+03:00')   #просто init
+    article = reader(url_article)
+    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
+    name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + rtdatefile(@div_date)  #def name_save_file locate down; def dir_save_file in application_controller.rb
+    #name_file = '/bn-' + name_file + DateTime.parse(url_date).strftime("%y%m%d") + '-' + DateTime.parse(url_date).strftime("%H%M") + '.txt'
+  city = ""
+  unless File.exist?(name_file)
+		f = File.new(name_file, 'w')
+	  f << "http://www.reuters.com" + url_article + "\n\n\n"
+	  f << @div_article_header + "\n"
+	  f << @div_date + "\n"
+
+    article.each do |elem|
+	    f << elem + "\n"
+        if city == ""
+          if elem =~ /TOKYO/
+            city = 'TOKYO'
+          elsif elem =~ /LONDON/
+            city = 'LONDON'
+          elsif elem =~ /YORK/
+            city = 'YORK'
+          elsif elem =~ /SYDNEY/
+            city = 'SYDNEY'
+          end
+        end
+      end # article.each do |elem|
+		f.close
+    old_name = String.new(name_file)
+    new_name = name_file.insert(name_file.index('.txt'), city)
+		#byebug
+    File.rename(old_name, new_name)  if city != ""
+
+	  end # unless File.exist?(name_file)
+  end #  def wrieter(url_article)  #“Save-file-txt”
   
   def reader(url_article) #для "Просмотреть"
     agent = Mechanize.new
@@ -232,6 +326,7 @@ end #edit
     @div_first = div_h5.first.text
     @div_percent = div_h5.last.text
     article = div_all_page.css("p")
+#byebug
     @mas_p = []
     article.each do |elem|
       @mas_p.push(elem.text.gsub("\n", " "))
@@ -363,12 +458,33 @@ end #time_view == nil
     name_lk = dir_save_file(target_date) + name_save_file(target_date, dir_lk, '.html')  #def dir_save_file и def name_save_file locate in 
 	  if File.exist?(name_lk)
      @doc_f = File.open(name_lk) { |f| Nokogiri::XML(f) }
-     div = @doc_f.css "div[class=article], p"
+     @teg_to_copy = Tegiobrab.name_teg
+     if @teg_to_copy == 'global'
+       div_class = @doc_f.css "div[class=global]"
+     elsif @teg_to_copy == 'index'
+         div_class = @doc_f.css "div[class=index]"
+     elsif @teg_to_copy == 'asia'
+         div_class = @doc_f.css "div[class=asia]"
+     elsif @teg_to_copy == 'euro'
+         div_class = @doc_f.css "div[class=euro]"
+     elsif @teg_to_copy == 'usa'
+         div_class = @doc_f.css "div[class=usa]"
+     elsif @teg_to_copy == 'forex'
+         div_class = @doc_f.css "div[class=forex]"
+     elsif @teg_to_copy == 'company'
+         div_class = @doc_f.css "div[class=company]"
+     elsif @teg_to_copy == 'oil'
+         div_class = @doc_f.css "div[class=oil]"
+     else
+         div_class = @doc_f.css "div[class=global]"
+     end
+     div_p = div_class.css "p"
+#byebug        
      f = File.new(name_lk, 'w')
       new_p = Nokogiri::XML::Node.new "p", @doc_f
       new_p.content = @mas_p[params[:id].to_i]
 #      byebug
-      div.last.add_next_sibling(new_p)
+      div_p.last.add_next_sibling(new_p)
       @doc_f.to_html
       f << @doc_f   
 		  f.close

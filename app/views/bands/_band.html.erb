@@ -25,11 +25,11 @@
  		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-primary" %>
   	<% else %>
   	<% end %>
-	  <%#= link_to "Save-file-txt", savefile_band_path(band) %>
+	  <%= link_to "Save-file-txt", savefile_band_path(band) %>
 
 	  <%#= link_to "Удалить", band_path(band), method: :delete,
                           data: {confirm: 'Вы уверены?'} %>
-	  <%#= link_to "Корр.время", corect_band_path(band) %>
+	  <%= link_to "Корр.время", corect_band_path(band) %>
 	  <%#= link_to "Корр.время", corect_band_path(band), method: :edit,
                           data: {confirm: 'Вы уверены?'} %>
 	  <%#= link_to "**Обработать", china_band_path(band) %>

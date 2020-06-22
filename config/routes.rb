@@ -3,8 +3,10 @@ Rails.application.routes.draw do
   root 'application#hello'
   resources :bands do
     get 'newlook', on: :new
+    get 'radiomenu', on: :new
     get 'editlook', on: :member
-    #get 'savefile', on: :member
+    get 'savefile', on: :member
+    get 'corect', on: :member
   end
   resources :overlooks
 

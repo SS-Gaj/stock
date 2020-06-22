@@ -1,10 +1,17 @@
+<%= render "radiomenu" %>
+  
 <h3><%= @div_article_header %></h3>
 <p><%= @div_date %></p>
-<% @mas_p.each.with_index do |elem, i| %>
-  <p><%= elem %>
-  <br>
-  <%= link_to "Copy", controller: "bands", action: "editlook", id: i %>
-  </p>
-  <%#= link_to "Цифры_и_факты", controller: "overlooks", action: "fact", id: i %>
-<% end %>
+
+<div class="container">
+  <% @mas_p.each.with_index do |elem, i| %>
+    <div class="row">
+      <div class="col-10"><%= elem %></div>
+      <div class="col-2">
+        <%= link_to "Copy", controller: "bands", action: "editlook", id: i %>
+      </div>
+    </div>
+    <br>
+  <% end %>
+</div>
 
