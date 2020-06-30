@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   resources :bands do
     get 'newlook', on: :new
     get 'radiomenu', on: :new
+    get 'datereview', on: :new
     get 'editlook', on: :member
     get 'savefile', on: :member
     get 'corect', on: :member

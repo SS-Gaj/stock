@@ -1,0 +1,22 @@
+<footer class="footer mt-auto py-3">
+
+<div class="row">
+
+  <div class="col-4">
+    <a class="text-muted" href="#">Дата обзора</a>
+  </div>  
+
+  <%= form_with(url: :datereview_new_band, method: :get) do %>  
+      <div class="col-4">
+        <%= date_field_tag 'datereview' %>
+      </div>
+
+      <div class="col-4">
+        <button class="btn btn-secondary my-2 my-sm-0" type="submit">Ввести дату</button>
+      </div>
+  <% end %>
+
+</div>
+
+</footer>
+

@@ -1,7 +1,6 @@
 class BandsController < ApplicationController
   def index
-#		@bands = Band.paginate(page: params[:page])
-#		@bands = Band.paginate(page: params[:page], per_page: 30)
+#byebug
     @bands = Band.page(params[:page]).order('bn_date DESC')
 #		@bands = Band.all
   end
@@ -72,10 +71,16 @@ class BandsController < ApplicationController
 
   def radiomenu #Выбот тега для "Copy" в заданный раздел
     @teg_to_copy = params[:inlineRadioOptions]
-    +@var_teg = Tegiobrab.new(@teg_to_copy)
+    @var_teg = Tegiobrab.new(@teg_to_copy)
 #byebug
 #  render inline: "<p>ВЫБРАНО</p>"
   
+  end
+
+  def datereview #Установка даты для файла "Обработать"
+    @date_review = params[:datereview]
+    @var_datereview = Datereview.new(@date_review)
+#byebug 
   end
 
 def newlook #С 12чер20 здесь .html вместо .xml
@@ -84,7 +89,10 @@ def newlook #С 12чер20 здесь .html вместо .xml
 #    texttocopy  #/app/controllers/application_controller.rb
   #формирование имени файла "Обзор за ..."
   @preflk = '/lk-'
-  target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
+ # byebug
+  @date_review = Datereview.date_review
+  target_date = Date.parse(@date_review)
+#  target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
   name_lk = dir_save_file(target_date) + name_save_file(target_date, @preflk, '.html')  #def dir_save_file и def name_save_file locate in 
 
 #byebug
@@ -188,6 +196,7 @@ end #edit
     name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + rtdatefile(@div_date)  #def name_save_file locate down; def dir_save_file in application_controller.rb
     #name_file = '/bn-' + name_file + DateTime.parse(url_date).strftime("%y%m%d") + '-' + DateTime.parse(url_date).strftime("%H%M") + '.txt'
   city = ""
+#  byebug
   unless File.exist?(name_file)
 		f = File.new(name_file, 'w')
 	  f << "http://www.reuters.com" + url_article + "\n\n\n"
@@ -451,10 +460,13 @@ end #time_view == nil
 ##end #unless href_view =~ /idUSL8N1W4203/
     end #rss_new
     
-  def add_p(dir_lk) #добавить вбзац
+  def add_p(dir_lk) #добавить абзац
   #номер нужного абзаца выбирается как :id из полученного запроса	
 #byebug
-    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
+  # byebug
+    @date_review = Datereview.date_review
+    target_date = Date.parse(@date_review)
+#    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
     name_lk = dir_save_file(target_date) + name_save_file(target_date, dir_lk, '.html')  #def dir_save_file и def name_save_file locate in 
 	  if File.exist?(name_lk)
      @doc_f = File.open(name_lk) { |f| Nokogiri::XML(f) }
@@ -479,11 +491,10 @@ end #time_view == nil
          div_class = @doc_f.css "div[class=global]"
      end
      div_p = div_class.css "p"
-#byebug        
      f = File.new(name_lk, 'w')
       new_p = Nokogiri::XML::Node.new "p", @doc_f
       new_p.content = @mas_p[params[:id].to_i]
-#      byebug
+ #byebug
       div_p.last.add_next_sibling(new_p)
       @doc_f.to_html
       f << @doc_f   
