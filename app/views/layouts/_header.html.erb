@@ -18,9 +18,10 @@
       <li class="nav-item active dropdown">
         <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Фондовый рынок</a>
         <div class="dropdown-menu" aria-labelledby="dropdown01">
-          <%= link_to 'Лента новостей', bands_path, class: "dropdown-item" %>
+          <%#= link_to 'Лента новостей', bands_path, class: "dropdown-item" %>
+          <%= link_to 'Лента новостей', { controller: "bands", action: "index", query: "0" }, class: "dropdown-item" %>
           <%= link_to 'Обновить ленту', new_band_path, class: "dropdown-item" %>
-          <a class="dropdown-item" href="#">Корзина</a>
+          <%= link_to 'Корзина', { controller: "bands", action: "index", query: "1" }, class: "dropdown-item" %>
           <a class="dropdown-item" href="#">Очистить корзину</a>
         </div>
       </li>

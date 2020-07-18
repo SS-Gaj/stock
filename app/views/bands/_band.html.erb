@@ -12,24 +12,42 @@
 	  <% if band.bn_action == 0 %>
   	  <%= link_to "Прочитать", band_path(band), class:  "badge badge-light" %>
   	  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-light" %>
-  	  <%#= link_to "Save-file-txt", "#", class:  "badge badge-light" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-light" %>
   	<% elsif band.bn_action == 1 %>
     	<%= link_to "Прочитать", band_path(band), class:  "badge badge-primary" %>
  		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-light" %>
-  	  <%#= link_to "Save-file-txt", "#", class:  "badge badge-light" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-light" %>
   	<% elsif band.bn_action == 4 %>
     	<%= link_to "Прочитать", band_path(band), class:  "badge badge-light" %>
  		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-primary" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-light" %>
+  	<% elsif band.bn_action == 5 %>
+    	<%= link_to "Прочитать", band_path(band), class:  "badge badge-light" %>
+ 		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-light" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-primary" %>
     <% elsif band.bn_action == 14 %>
     	<%= link_to "Прочитать", band_path(band), class:  "badge badge-primary" %>
  		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-primary" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-light" %>
+    <% elsif band.bn_action == 15 %>
+    	<%= link_to "Прочитать", band_path(band), class:  "badge badge-primary" %>
+ 		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-light" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-primary" %>
+    <% elsif band.bn_action == 45 %>
+    	<%= link_to "Прочитать", band_path(band), class:  "badge badge-light" %>
+ 		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-primary" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-primary" %>
+    <% elsif band.bn_action == 145 %>
+    	<%= link_to "Прочитать", band_path(band), class:  "badge badge-primary" %>
+ 		  <%= link_to "Обработать", edit_band_path(band), class:  "badge badge-primary" %>
+  	  <%= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-primary" %>
   	<% else %>
   	<% end %>
-	  <%= link_to "Save-file-txt", savefile_band_path(band) %>
+    	<%= link_to "Скрыть", hide_band_path(band), class:  "badge badge-light" %>
 
 	  <%#= link_to "Удалить", band_path(band), method: :delete,
                           data: {confirm: 'Вы уверены?'} %>
-	  <%= link_to "Корр.время", corect_band_path(band) %>
+	  <%= link_to "Корр.время", corect_band_path(band), class:  "badge badge-light" %>
 	  <%#= link_to "Корр.время", corect_band_path(band), method: :edit,
                           data: {confirm: 'Вы уверены?'} %>
 	  <%#= link_to "**Обработать", china_band_path(band) %>

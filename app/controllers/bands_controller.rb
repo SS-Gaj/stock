@@ -1,8 +1,13 @@
 class BandsController < ApplicationController
   def index
 #byebug
-    @bands = Band.page(params[:page]).order('bn_date DESC')
-#		@bands = Band.all
+#    @bands = Band.page(params[:page]).order('bn_date DESC')
+    if params[:query] == "0"
+      @bands = Band.where("bn_action >= '0'").page(params[:page]).order('bn_date DESC')
+    else
+      @bands = Band.where("bn_action < '0'").page(params[:page]).order('bn_date DESC')
+    end #if params[:query]
+
   end
 
   def new #"Обновить" здесь читается сайт reuters по заданным разделам - rtrs_url, и извлекаются анонсы, у которых url содержит шаблон из my_file.
@@ -40,13 +45,17 @@ class BandsController < ApplicationController
       end # until pastday < target_date
       ##2
     end #rtrs_url.each do |my_url|
-    redirect_to bands_path	#bands#index
+    redirect_to action: "index", query: "0"	#bands#index
   end # def new
 
   def show	#"Просмотреть"
 	  @band = Band.find(params[:id])
 	  @mas_p = reader(@band.bn_url)
- 	  @band.bn_action = 1
+	  if @band.bn_action == 0
+   	  @band.bn_action = 1
+    elsif @band.bn_action == 4
+      @band.bn_action = 14
+    end
  	  @band.save
   end
 
@@ -57,6 +66,8 @@ class BandsController < ApplicationController
      @band.bn_action = 4
     elsif @band.bn_action == 1
       @band.bn_action = 14
+    elsif @band.bn_action == 5
+      @band.bn_action = 45
     end
  	  @band.save
  	  @mas_p = reader(@band.bn_url)  
@@ -174,14 +185,31 @@ end #edit
   	  @band = Band.find(params[:id])
    	  @band.bn_date = @band.bn_date - 86400
   	  @band.save
-  	  redirect_to bands_path	#bands#index
+  	  redirect_to action: "index", query: "0"	#bands#index
   end # def destroy
 
   def savefile	#“Save-file-txt”
  	  @band = Band.find(params[:id])
+    if @band.bn_action == 0
+      @band.bn_action = 5
+    elsif @band.bn_action == 1
+      @band.bn_action = 15
+    elsif @band.bn_action == 4
+      @band.bn_action = 45
+    elsif @band.bn_action == 14
+      @band.bn_action = 145
+    end
+ 	  @band.save
     wrieter(@band.bn_url)      
-    redirect_to bands_path	#bands#index
+    redirect_to action: "index", query: "0"	#bands#index
   end	#def savefile	#“Save-file-txt”
+
+  def hide	#“Скрыть”
+ 	  @band = Band.find(params[:id])
+ 	  @band.bn_action = -1
+ 	  @band.save
+    redirect_to action: "index", query: "0"
+  end	#def hide	#“Скрыть”
 
 
   private
@@ -361,6 +389,8 @@ end #edit
         name_file = 'europe-'
       elsif url =~ /oil-/
         name_file = 'oil-'
+	    elsif url =~ /britain/
+	      name_file = 'britain-'
       else
         name_file = 'othe-'
       end
@@ -417,6 +447,8 @@ end #edit
 	    elsif mas =~ /china-stocks-hongkong-close/
 	      need_file = true
 	    elsif mas =~ /europe-stocks/
+	      need_file = true
+	    elsif mas =~ /britain/
 	      need_file = true
 	    elsif mas =~ /bitcoin/
 	      need_file = true

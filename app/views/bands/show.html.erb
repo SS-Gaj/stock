@@ -3,8 +3,9 @@
 <% @mas_p.each do |elem| %>
   <p><%= elem %></p>
 <% end %>
+<%#= link_to "Save-file-txt", savefile_band_path(band), class:  "badge badge-light" %>
 <%#= link_to "Save-file-txt", savefile_band_path(band) %>
-<%#= link_to "Save-file-txt", controller: "bands", action: "savefile", id: @band %>
-<%#= link_to "Обработать", controller: "bands", action: "edit", id: @band %>
+<%= link_to "Save-file-txt", { controller: "bands", action: "savefile", id: @band }, class: "badge badge-light" %>
+<%= link_to "Обработать", { controller: "bands", action: "edit", id: @band }, class: "badge badge-light" %>
 <%#= link_to "Цифры_и_факты", editfact_band_path %>
 

@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     get 'editlook', on: :member
     get 'savefile', on: :member
     get 'corect', on: :member
+    get 'hide', on: :member
   end
   resources :overlooks
 
