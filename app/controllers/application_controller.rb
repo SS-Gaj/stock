@@ -11,6 +11,7 @@ class ApplicationController < ActionController::Base
 private
   def set_datereview
     @date_review ||= Date.yesterday.strftime("%Y-%m-%d") #if Datereview.date_review == nil
+#    @date_review ||= Date.today.strftime("%Y-%m-%d")
   end
   
 end
