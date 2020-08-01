@@ -1,7 +1,6 @@
 class BandsController < ApplicationController
   def index
 #byebug
-#    @bands = Band.page(params[:page]).order('bn_date DESC')
     if params[:query] == "0"
       @bands = Band.where("bn_action >= '0'").page(params[:page]).order('bn_date DESC')
     else
@@ -61,7 +60,6 @@ class BandsController < ApplicationController
 
   def edit	#"Обработать"
 	  @band = Band.find(params[:id])
-#byebug
     if @band.bn_action == 0
      @band.bn_action = 4
     elsif @band.bn_action == 1
@@ -82,16 +80,12 @@ class BandsController < ApplicationController
 
   def radiomenu #Выбот тега для "Copy" в заданный раздел
     @teg_to_copy = params[:inlineRadioOptions]
-    @var_teg = Tegiobrab.new(@teg_to_copy)
-#byebug
-#  render inline: "<p>ВЫБРАНО</p>"
-  
+    @var_teg = Tegiobrab.new(@teg_to_copy)  
   end
 
   def datereview #Установка даты для файла "Обработать"
     @date_review = params[:datereview]
     @var_datereview = Datereview.new(@date_review)
-#byebug 
   end
 
 def newlook #С 12чер20 здесь .html вместо .xml
@@ -100,13 +94,9 @@ def newlook #С 12чер20 здесь .html вместо .xml
 #    texttocopy  #/app/controllers/application_controller.rb
   #формирование имени файла "Обзор за ..."
   @preflk = '/lk-'
- # byebug
   @date_review = Datereview.date_review
   target_date = Date.parse(@date_review)
-#  target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
   name_lk = dir_save_file(target_date) + name_save_file(target_date, @preflk, '.html')  #def dir_save_file и def name_save_file locate in 
-
-#byebug
 	unless File.exist?(name_lk)
 	  unless Overlook.exists?(lk_date: target_date)
         overlook = Overlook.new(lk_date: target_date, lk_file: name_lk)        
@@ -162,20 +152,17 @@ def newlook #С 12чер20 здесь .html вместо .xml
           </body>
       </html>
     EOHTML
-    #day = @doc_f.at_css "day"
     day = @doc_f.at_css "h1"
     day.content = "Обзор за " + target_date.strftime("%Y-%m-%d")
     @doc_f.to_html
     f << @doc_f
     f.close
 	end # unless File.exist?(name_lk)
-#byebug
 end #def newlook #С 12чер20 здесь .html вместо .xml
 
 def editlook	# при нажатии "Copy" во вьюэре
   texttocopy  #Здесь восстанавливается .html-переменная "Обрабатываемого" файла из class Obrab;
 #... и там же номер нужного абзаца выбирается как :id из полученного запроса	
-#byebug
   add_p('/lk-')
 	render "newlook"
   #redirect_to :back
@@ -221,10 +208,8 @@ end #edit
     target_date = DateTime.parse('2017-09-23T04:05:06+03:00')   #просто init
     article = reader(url_article)
     target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
-    name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + rtdatefile(@div_date)  #def name_save_file locate down; def dir_save_file in application_controller.rb
-    #name_file = '/bn-' + name_file + DateTime.parse(url_date).strftime("%y%m%d") + '-' + DateTime.parse(url_date).strftime("%H%M") + '.txt'
+    name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + rtdatefile(@div_date)
   city = ""
-#  byebug
   unless File.exist?(name_file)
 		f = File.new(name_file, 'w')
 	  f << "http://www.reuters.com" + url_article + "\n\n\n"
@@ -248,12 +233,11 @@ end #edit
 		f.close
     old_name = String.new(name_file)
     new_name = name_file.insert(name_file.index('.txt'), city)
-		#byebug
     File.rename(old_name, new_name)  if city != ""
 
 	  end # unless File.exist?(name_file)
   end #  def wrieter(url_article)  #“Save-file-txt”
-  
+
   def reader(url_article) #для "Просмотреть"
     agent = Mechanize.new
     page = agent.get("http://www.reuters.com" + url_article)    #@band.bn_url
@@ -264,62 +248,22 @@ end #edit
     @div_isxurl = url_article
     unless url_article =~ /live-markets/
       article = div_all_page.css("div[class=StandardArticleBody_body] p")
-    #byebug
     else
       article = div_all_page.css("div [class=StandardArticleBody_body_1gnLA] pre")
-    end    
+    end
     mas_glob = []
     article.each do |elem|
-     mas_glob.push(elem.text.gsub("\n", " "))
-    end
-    mas_glob.each do |first|
-      if first =~ /\(Reuters\)/
-        @div_first = first
-        break
-      end # if first =~ /\(Reuters\)/
-    end   # mas_glob.each do |first|
-    mas_glob.each do |first|
-      if first =~ /percent(,*)\s(\w*\s)*(\d)+,\d\d\d.\d/
-        @div_percent = first
-        break
-      end # if first =~ /\(Reuters\)/
-    end   # mas_glob.each do |first|
-    mas_glob.each do |first|
-      if first =~ /STOXX/ and first =~ /percent/
-        @div_percent = first
-        break
-      end # if first =~ /\(Reuters\)/
-    end   # mas_glob.each do |first|
-    if @div_first == nil
-      @div_first = " "
-    else
-    ### для "китайцев" НАЧАЛО
-    if @div_first.include? "**"
-      mas = @div_first.split('**')
-      mas.each do |first|
-       if first =~ /\(Reuters\)/
-        @div_first = first
-        break
-       end
-      end   #mas.each do |first|
-    end # if @div_first.include? "**"
-    @div_first = @div_first + " /" + @div_date +"/"
-    end # if @div_first.include? "**"
-    #@div_percent = " " if @div_percent == nil    
-    if @div_percent == nil
-      @div_percent = " "
-    else
-      if @div_percent.include? "**"
-        mas = @div_percent.split('**')
-        mas.each do |first|
-         if first =~ /percent(,*)\s(\w*\s)*(\d)+,\d\d\d.\d/
-          @div_percent = first
-          break
-         end
-        end   #mas.each do |first|
-      end # if @div_first.include? "**"
-    end   # if @div_percent == nil
-### для "китайцев" КОНЕЦ
+      elem = elem.text.gsub("\n", " ")
+      if elem.include? "**"
+        mas = []
+        mas = elem.split('**')
+        mas.each do |star|
+          mas_glob.push(star) unless star == ""
+        end
+      else
+        mas_glob.push(elem)
+      end   #if @div_first.include? "**"
+    end #article.each do |elem|
     return mas_glob 
   end #def reader(url_article) #для "Прочитать"
 
@@ -334,9 +278,6 @@ end #edit
     f << "<h3>" + @div_article_header + "</h3>"
     f << "<h3>" + @div_date + "</h3>"
     f << "<h4>" + url_article + "</h4>"
-    #byebug
-    f << "<h5>" + @div_first + "</h5>"
-    f << "<h5>" + @div_percent + "</h5>"
     article.each do |elem|
       mas = []
       mas = elem.split('**')
@@ -352,7 +293,6 @@ end #edit
   def texttocopy()
   # "Обработываемый" файл был сохранен как .html-переменная в class Obrab и здесь восстанавливается по-новой
   #... и считывается в Nokogiri
-  #byebug
     doc_obrab = Nokogiri::HTML(Obrab.file_obrab)
     div_all_page = doc_obrab.css("html")
     article = div_all_page.css("h3")
@@ -360,10 +300,7 @@ end #edit
     @div_date = article.last.text
     @div_isxurl = div_all_page.css("h4").text
     div_h5 = div_all_page.css("h5")
-    @div_first = div_h5.first.text
-    @div_percent = div_h5.last.text
     article = div_all_page.css("p")
-#byebug
     @mas_p = []
     article.each do |elem|
       @mas_p.push(elem.text.gsub("\n", " "))
@@ -404,13 +341,9 @@ end #edit
   end	#name_need_file
 
   def dir_save_file (date_prezent)  # used in overlooks_controller.rb
-  # puts "REUTERS_DIR = #{REUTERS_DIR}"
 	  dir_year = date_prezent.year.to_s
 	  dir_mon = date_prezent.mon.to_s
 	  dir_day = date_prezent.day.to_s
-	  #Dir.chdir(REUTERS_DIR)
-	  #REUTERS_DIR = '/home/ss/Documents/Reuters/index'
-	  #Dir.chdir('/home/ss/Documents/Reuters')
     Dir.chdir('/home/ss/reuters')
 	  Dir.mkdir(dir_year) unless File.directory?(dir_year)
 	  Dir.chdir(dir_year)
@@ -474,11 +407,9 @@ end #edit
       div_block_article = doc.css("div[class=story-content]")
       div_block_article.each do |link|
         href_view = link.css("a").first['href']
-## unless href_view =~ /idUSL8N1W4203/   #не найду причину ошибки, поэтому убираю конкретную статью - см.hm-pisma26-180918(time-err)
         name_view = link.css("h3").first.text.strip
         time_view = link.css("time[class=article-time]").css("span[class=timestamp]").first
 unless time_view == nil
-#byebug        
         @time_view = time_view.text
         content_view = link.css("p").first.text.strip
         if my_file(href_view)
@@ -489,16 +420,12 @@ unless time_view == nil
 end #time_view == nil
       end #div_block_article.each do |link|
       return DateTime.parse(@time_view)   
-##end #unless href_view =~ /idUSL8N1W4203/
     end #rss_new
     
   def add_p(dir_lk) #добавить абзац
   #номер нужного абзаца выбирается как :id из полученного запроса	
-#byebug
-  # byebug
     @date_review = Datereview.date_review
     target_date = Date.parse(@date_review)
-#    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
     name_lk = dir_save_file(target_date) + name_save_file(target_date, dir_lk, '.html')  #def dir_save_file и def name_save_file locate in 
 	  if File.exist?(name_lk)
      @doc_f = File.open(name_lk) { |f| Nokogiri::XML(f) }
@@ -526,7 +453,6 @@ end #time_view == nil
      f = File.new(name_lk, 'w')
       new_p = Nokogiri::XML::Node.new "p", @doc_f
       new_p.content = @mas_p[params[:id].to_i]
- #byebug
       div_p.last.add_next_sibling(new_p)
       @doc_f.to_html
       f << @doc_f   
