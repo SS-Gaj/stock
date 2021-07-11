@@ -207,14 +207,17 @@ end #edit
   def wrieter(url_article)  #“Save-file-txt”
     target_date = DateTime.parse('2017-09-23T04:05:06+03:00')   #просто init
     article = reader(url_article)
-    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
-    name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + rtdatefile(@div_date)
+#    target_date = Date.new(DateTime.parse(@div_date).year, DateTime.parse(@div_date).mon, DateTime.parse(@div_date).day)
+    target_date = @div_date
+#    name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + rtdatefile(@div_date)
+    name_file = dir_save_file(target_date) + '/bn-' + name_need_file(url_article) + @div_date.strftime("%y%m%d") + '-' + @div_date.strftime("%H%M") + '.txt'           
   city = ""
   unless File.exist?(name_file)
 		f = File.new(name_file, 'w')
 	  f << "http://www.reuters.com" + url_article + "\n\n\n"
 	  f << @div_article_header + "\n"
-	  f << @div_date + "\n"
+#	  f << @div_date + "\n"
+	  f << @div_date.strftime("%Y-%m-%d") + "\n"
 
     article.each do |elem|
 	    f << elem + "\n"
@@ -242,15 +245,24 @@ end #edit
     agent = Mechanize.new
     page = agent.get("http://www.reuters.com" + url_article)    #@band.bn_url
     doc = Nokogiri::HTML(page.body)
-    div_all_page = doc.css("div[class=StandardArticle_inner-container]")
-    @div_article_header = div_all_page.css("div[class=ArticleHeader_content-container] h1").text
-    @div_date = div_all_page.css("div[class=ArticleHeader_content-container]").css("div[class=ArticleHeader_date]").text
+#    div_all_page = doc.css("div[class=StandardArticle_inner-container]")
+#    @div_article_header = div_all_page.css("div[class=ArticleHeader_content-container] h1").text
+#    @div_date = div_all_page.css("div[class=ArticleHeader_content-container]").css("div[class=ArticleHeader_date]").text
     @div_isxurl = url_article
-    unless url_article =~ /live-markets/
-      article = div_all_page.css("div[class=StandardArticleBody_body] p")
-    else
-      article = div_all_page.css("div [class=StandardArticleBody_body_1gnLA] pre")
-    end
+#    unless url_article =~ /live-markets/
+#      article = div_all_page.css("div[class=StandardArticleBody_body] p")
+#    else
+#      article = div_all_page.css("div [class=StandardArticleBody_body_1gnLA] pre")
+#    end
+body_article = doc.css("body")
+head_date_time = body_article.css("div[class=TwoColumnsLayout-inner-e5KaJ]")
+data_time = head_date_time.css("div[class=ArticleHeader-info-container-3-6YG]")
+#data = data_time.css("time:first-child")
+head = head_date_time.css("h1.Headline-headline-2FXIq")
+article_body = body_article.css("div[class=TwoColumnsLayout-left-column-CYquM]")
+article = article_body.css("p[class~=Paragraph-paragraph-2Bgue]")
+@div_article_header = head.text
+@div_date = @band.bn_date
     mas_glob = []
     article.each do |elem|
       elem = elem.text.gsub("\n", " ")
@@ -276,7 +288,8 @@ end #edit
     f << "</head>"
     f << "<body>"
     f << "<h3>" + @div_article_header + "</h3>"
-    f << "<h3>" + @div_date + "</h3>"
+#    f << "<h3>" + @div_date + "</h3>"
+    f << "<h3>" + @div_date.strftime("%Y-%m-%d") + "</h3>"
     f << "<h4>" + url_article + "</h4>"
     article.each do |elem|
       mas = []
